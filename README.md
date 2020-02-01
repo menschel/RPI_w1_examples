@@ -20,7 +20,7 @@ There are two ways.
 1. via raspi-config
 ```
 sudo raspi-config
-interfacing options / 1-wire / yes
+>> interfacing options >> 1-wire >> yes
 ```
 2. via config.txt
 ```
@@ -42,9 +42,11 @@ ls /sys/bus/w1/devices/
 Will show you a list of cryptic entries. The names that don't make sense are the devices.
 DS18B20 devices start with "28." followed by a hexadecimal number.
 A further look into the device's directory shows a file named w1-slave
-(/sys/bus/w1/devices/28.40191C5F1401/w1-slave). We read that file to console output with cat.
+(/sys/bus/w1/devices/28-01145f1c1940/w1_slave). We read that file to console output with cat.
 ```
-cat /sys/bus/w1/devices/28.40191C5F1401/w1-slave
+cat /sys/bus/w1/devices/28-01145f1c1940/w1_slave 
+70 01 4b 0a 7f ff 7f 10 6b : crc=6b YES
+70 01 4b 0a 7f ff 7f 10 6b t=23000
 ```
 And look at the magic. Two lines of output will show, a left part of hexdecimal numbers and a right part of text. First line will end with CRC=OK and the second line will end with a t=XXXXX a decimal number showing the temperature in milli degree celsius.
 When reading w1-slave, a transfer is started on the 1-wire bus and the data retrieved is shown on output with annotations such as CRC and temperature. This is true to the saying, "On linux, everything is a file".
@@ -69,7 +71,6 @@ $ python3 test_w1_sensor_temp.py
  '28-030897943f95': 1.875,
  '28-03159779456f': 2.187}
 ```
-
 Unfortunately this is the point were most tutorials stop, before telling you the crucial parts to make it useful. We will continue through.
 
 # Installing owfs, the One Wire File System
@@ -97,8 +98,9 @@ http: port = 2121
 ```
 
 A reboot may be required to make everything work as expected.
-One word about owfs documenation, it focuses on adapters, w1-master chips via usb or serial. Additionally owfs moved from source-forge to github in mid 2018 and documentation is scattered around both locations.
-The documentation that got me started with a working configuration was part of an issue reporting thread on github. Currently owfs is at version 3.2p3. If the above configuration does not work for you, look on github, not on source-forge.
+One word about owfs documenation, it focuses on adapters, w1-master chips via usb or serial. Additionally owfs moved from sourceforge to github in mid 2018 and documentation is scattered around both locations.
+The documentation that got me started with a working configuration was part of an issue reporting thread on github. Currently owfs is at version 3.2p3. If the above configuration does not work for you, look on github, not on sourceforge.
+https://github.com/owfs/owfs/
 
 
 # Accessing owserver from the command line and via web browser
@@ -187,8 +189,9 @@ you find a new room entry in FHEM called OWDevices and almost everything is auto
 Now you can actually use your 1-Wire server.
 Other home automation servers may work in a similar way.
 
+```
 define FileLog_DS18B20 FileLog /opt/fhem/log/filelog_ds18b20_%Y_%m_%d.log DS18B20_.*:temperature.*
-
+```
 
 After running some tests with 7 sensors in a cup of ice water and hot water, it shows that some sensors drift away from the others or maybe the contact with the cups surface has an effect on the reading.
 ![accuracy](resources/accuracy.png)
